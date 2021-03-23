@@ -34,6 +34,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.get('/', (req, res) => {
   Todo.find()
     .lean() // 把 Mongoose 的 Model 物件轉換成乾淨的 JavaScript 資料陣列
+    .sort({ _id: 'asc' })  //desc 升序及降序
     .then((todos) => res.render("index", { todos }))
     .catch((error) => console.log(error));
 })
@@ -72,10 +73,11 @@ app.post('/todos', (req,res) =>{
 //在用戶指定的id中進入編輯頁面,然後將編輯後的資料取代原有的資料並儲存,然後渲染到index頁面
 app.post("/todos/:id/edit", (req, res) => {
   const id = req.params.id
-  const name = req.body.name;
+  const { name, isDone }= req.body
   return Todo.findById(id)
     .then( todo => {
       todo.name = name
+      todo.isDone = isDone === 'on'
       return todo.save()
     })
     .then(() => res.redirect(`/todos/${id}`)) 
