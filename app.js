@@ -2,6 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const exphbs = require('express-handlebars')
 const bodyParser = require('body-parser')
+const methodOverride = require('method-override')
 
 const Todo = require('./models/todo')
 
@@ -29,6 +30,8 @@ app.set('view engine', 'hbs')
 
 //使用bodyPareser捕捉POST的回傳資料
 app.use(bodyParser.urlencoded({ extended: true }))
+
+app.use(methodOverride('_method'))
 
 //從db讀取資料並渲染index頁面
 app.get('/', (req, res) => {
@@ -71,7 +74,7 @@ app.post('/todos', (req,res) =>{
 })
 
 //在用戶指定的id中進入編輯頁面,然後將編輯後的資料取代原有的資料並儲存,然後渲染到index頁面
-app.post("/todos/:id/edit", (req, res) => {
+app.put("/todos/:id", (req, res) => {
   const id = req.params.id
   const { name, isDone }= req.body
   return Todo.findById(id)
@@ -85,7 +88,7 @@ app.post("/todos/:id/edit", (req, res) => {
 });
 
 //在用戶指定的id,移除指定的id並渲染index畫面
-app.post("/todos/:id/delete", (req, res) => {
+app.delete("/todos/:id", (req, res) => {
   const id = req.params.id;
   return Todo.findById(id)
     .then(todo =>  todo.remove())
