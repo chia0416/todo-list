@@ -37,6 +37,7 @@ router.get("/:id/edit", (req, res) => {
 //在用戶指定的id中進入編輯頁面,然後將編輯後的資料取代原有的資料並儲存,然後渲染到index頁面
 router.put("/:id", (req, res) => {
   const id = req.params.id
+  console.log('created')
   const { name, isDone }= req.body
   return Todo.findById(id)
     .then( todo => {
@@ -44,7 +45,7 @@ router.put("/:id", (req, res) => {
       todo.isDone = isDone === 'on'
       return todo.save()
     })
-    .then(() => res.redirect(`/${id}`)) 
+    .then(() => res.redirect(`/`)) 
     .catch(error => console.log(error))
 });
 
