@@ -10,11 +10,17 @@ router.get('/new', (req, res) => {
 
 //取得用戶想新增的資料，並把資料創建且回傳資料庫裡，然後渲染到idex頁面
 router.post('/', (req,res) =>{
-  const name = req.body.name
-  return Todo.create({ name })
-  .then(() => res.redirect('/'))
-  .catch(error => console.log(error))
+  const todos = String(req.body.name).split(',').map(todo => ({name: todo}));
+  Todo.insertMany(todos)
+  .then(() =>{
+    return res.redirect('/')
+  })
 })
+//   const name = req.body.name
+//   return Todo.create({ name })
+//   .then(() => res.redirect('/'))
+//   .catch(error => console.log(error))
+// })
 
 //從ID比對用戶想取得的名字並進入detail頁面
 router.get('/:id', (req, res) => {
@@ -37,7 +43,7 @@ router.get("/:id/edit", (req, res) => {
 //在用戶指定的id中進入編輯頁面,然後將編輯後的資料取代原有的資料並儲存,然後渲染到index頁面
 router.put("/:id", (req, res) => {
   const id = req.params.id
-  console.log('created')
+  console.log('edit')
   const { name, isDone }= req.body
   return Todo.findById(id)
     .then( todo => {
