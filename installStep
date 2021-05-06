@@ -1,0 +1,156 @@
+//設定package.json
+  npm init-y
+  設定程式入口為app.js (packsage.json => main:app.js)
+
+//安裝Express
+  npm install express
+
+  // 載入 express 並建構應用程式伺服器
+    const express = require('express')
+    const app = express()
+
+  // 設定首頁路由
+    app.get('/', (req, res) => {
+    res.send('hello world')
+    })
+
+  // 設定 port 3000
+    app.listen(3000, () => {
+    console.log('App is running on http://localhost:3000')
+    })
+
+//設定常用腳本
+  npm run start -> node app.js
+  npm run dev  -> nodemon app.js
+
+//設定版本控制
+  git init
+  .gitignore
+  git add + git commit -m
+
+//安裝Mongoose資料庫(串接mongoDB)
+  npm i mongoose
+    const mongoose = require('mongoose')
+    mongoose.connect('mongodb://localhost/(monogdb的資料名稱)', { useNewUrlParser: true, useUnifiedTopology: true })
+  // 取得資料庫連線狀態
+    const db = mongoose.connection
+  // 連線異常
+    db.on('error', () => {
+    console.log('mongodb error!')
+    })
+  // 連線成功
+    db.once('open', () => {
+    console.log('mongodb connected!')
+    })
+
+//建立Todo Model
+  models -> name.js
+    const mongoose = require('mongoose')
+    const Schema = mongoose.Schema
+    const (name)Schema = new Schema({
+      name: {
+        type: String, // 資料型別是字串
+        required: true // 這是個必填欄位
+        }
+    })
+  module.exports = mongoose.model('Todo', todoSchema)
+
+//建立Seeder腳本(後續彙整合)
+  models -> seeds -> (name)Seeder.js
+      const mongoose = require('mongoose')
+      const Todo = require('../todo') // 載入 todo model
+      mongoose.connect('mongodb://localhost/todo-list', { useNewUrlParser: true, useUnifiedTopology: true })
+      const db = mongoose.connection
+      db.on('error', () => {
+        console.log('mongodb error!')
+      })
+    //此處新增資料
+      db.once('open', () => {
+        console.log('mongodb connected!')
+          for (let i = 0; i < 10; i++) {
+          Todo.create({ name: 'name-' + i })
+          }
+        console.log('done')
+      })
+  // node 資料路徑即可新增
+  // package.json -> seed : "node models/seeds/(js名稱)" <<以後npm run seed 即可
+
+//重構mongoose
+  config/mongoose.js
+  將資料移入 並新增module.exports = db
+  app.js => ('./config/mongoose') 
+  (name)Seeder.js => const db = require('../../config/mongoose')
+    db.once資料保留用來新增資料
+
+//設定Handlebars
+  npm install express-handlebars
+  views/layouts/main.handlebars
+  main -> 頁面設定
+  views/index.handlebars
+
+  app.js => 
+    const exphbs = require('express-handlebars');
+    app.engine('hbs', exphbs({ defaultLayout: 'main', extname: '.hbs' }))
+    app.set('view engine', 'hbs')
+  路由更改為app.get('/' , (req, res) => {
+    res.render('index')
+  })
+
+//設定body-parser
+  npm install body-parser
+  //引用body-parser
+  const bodyParser = require('body-parser')
+  app.use(bodyParser.urlencoded({ extend: true }))
+
+
+//重構路由器
+  routes/index.js
+  routes/modules/homes.js
+  routes/modules/(name).js
+
+  routes/index.js =>
+    // 引用 Express 與 Express 路由器
+    const express = require('express')
+    const router = express.Router()
+    // 準備引入路由模組
+    // 匯出路由器
+    module.exports = router
+
+  app.js =>
+    // 引用路由器
+    const routes = require('./routes')
+    // 將 request 導入路由器
+    app.use(routes)
+  
+  homes.js =>
+    // 引用 Express 與 Express 路由器
+    const express = require('express')
+    const router = express.Router()
+    // 引用 Todo model
+    const Todo = require('../../models/todo')
+    // 定義首頁路由
+    router.get('/', (req, res) => {
+      Todo.find()
+        .lean()
+        .sort({ _id: 'asc' }) // desc
+        .then(todos => res.render('index', { todos }))
+        .catch(error => console.error(error))
+    })
+    // 匯出路由模組
+    module.exports = router
+  
+  index.js =>
+    // 引入 home 模組程式碼
+  const home = require('./modules/home')
+  // 將網址結構符合 / 字串的 request 導向 home 模組 
+  router.use('/', home)
+
+
+//設定 express-session
+  npm i express-session
+  const session = require('express-session')
+  app.use(session({
+  secret: 'ThisIsMySecret',
+  resave: false,
+  saveUninitialized: true
+  }))

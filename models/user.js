@@ -15,7 +15,8 @@ const userSchema = new Schema({
   },
   createdAt: {
     type: Date,
-    default:Date.now
+    default:Date.now //函數本身未回傳值, 意味著我告訴mongoDB,幫我執行這個函數
+    //Date.now() 我得到了函數的回傳值,再傳給mongoDB 
   },
 });
 
