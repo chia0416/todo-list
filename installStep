@@ -154,3 +154,7 @@
   resave: false,
   saveUninitialized: true
   }))
+
+
+//passport 設定
+https://www.npmjs.com/package/passport
