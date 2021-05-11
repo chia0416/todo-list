@@ -1,11 +1,12 @@
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
 const User = require('../models/user')
+const bcrypt = require('bcryptjs')
 
 module.exports = app => {
   //初始化 Passport 模組
   app.use(passport.initialize());
-  app.use(passport.session());
+  app.use(passport.session())
 
   // 設定本地登入策略
   passport.use(new LocalStrategy({
@@ -18,10 +19,13 @@ module.exports = app => {
       if(!user){
         return done(null, false, req.flash( 'warning_msg', 'The email is not registered!'))
       }
-      if(user.password !== password){
-        return done(null, false, req.flash( 'warning_msg', 'Email or Password incorrect.'))
+      return bcrypt.compare(password, user.password)
+      .then(isMatch =>{
+        if(!isMatch){
+          return done(null, false, req.flash( 'warning_msg', 'Email or Password incorrect.'))
       }
-      return done(null, user)
+        return done(null, user) 
+      })
     })
     .catch(err => done(err, false))
   }))
